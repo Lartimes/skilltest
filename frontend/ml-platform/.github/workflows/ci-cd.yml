@@ -1,0 +1,212 @@
+# CI/CD Pipeline for ML Platform Frontend
+# 自动化构建、测试和部署流水线
+
+name: CI/CD Pipeline
+
+# 触发条件
+on:
+  # 分支推送和 PR 事件触发
+  push:
+    branches: [main, develop, master]
+    paths:
+      - 'frontend/ml-platform/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'frontend/ml-platform/**'
+  # 手动触发
+  workflow_dispatch:
+
+# 环境变量
+env:
+  NODE_VERSION: '20'
+  WORKING_DIRECTORY: 'frontend/ml-platform'
+
+jobs:
+  # ==================== 代码质量检查 ====================
+  code-quality:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: '${{ env.WORKING_DIRECTORY }}/package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript type checking
+        run: npm run build
+
+      - name: Run linter (if configured)
+        run: |
+          if [ -f ".eslintrc.js" ] || [ -f ".eslintrc.json" ]; then
+            npx eslint src --ext .ts,.tsx
+          fi
+
+  # ==================== 单元测试 ====================
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: '${{ env.WORKING_DIRECTORY }}/package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: |
+          if [ -d "src/__tests__" ] || [ -d "src/**/*.test.ts" ]; then
+            npm test -- --coverage --passWithNoTests
+          else
+            echo "No tests found, skipping..."
+          fi
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: ${{ env.WORKING_DIRECTORY }}/coverage/
+          retention-days: 7
+
+  # ==================== 构建应用 ====================
+  build:
+    name: Build Application
+    needs: [code-quality, test]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: '${{ env.WORKING_DIRECTORY }}/package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+          VITE_APP_VERSION: ${{ github.ref_name }}-${{ github.sha }}
+
+      - name: Preview build output
+        run: |
+          echo "Build completed!"
+          echo "Dist files:"
+          ls -la dist/
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-files
+          path: ${{ env.WORKING_DIRECTORY }}/dist/
+          retention-days: 30
+
+  # ==================== 部署预览 ====================
+  deploy-preview:
+    name: Deploy Preview
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-files
+          path: dist/
+
+      - name: Deploy to Vercel Preview
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./
+
+  # ==================== 生产部署 ====================
+  deploy-production:
+    name: Deploy Production
+    needs: build
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'push' && 
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') &&
+      github.event.pull_request.merged == true
+    
+    environment:
+      name: production
+      url: https://${{ vars.DEPLOYMENT_URL || 'your-app.vercel.app' }}
+    
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-files
+          path: dist/
+
+      - name: Deploy to Production
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+          working-directory: ./
+
+      - name: Deploy to GitHub Pages
+        if: vars.ENABLE_GITHUB_PAGES == 'true'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
+
+  # ==================== 部署通知 ====================
+  notify:
+    name: Deployment Notification
+    needs: [deploy-preview, deploy-production]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Send notification
+        run: |
+          echo "CI/CD Pipeline completed!"
+          echo "Status: ${{ needs.*.result }}"
+          echo "Run ID: ${{ github.run_id }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"

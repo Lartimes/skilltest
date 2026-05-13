@@ -1,0 +1,47 @@
+# src2 配置文件
+
+# 环境模式: dev | prod | full
+env_mode: dev
+
+# 路径配置
+paths:
+  data_dir: "data"
+  cache_dir: "cache/src2"
+  output_dir: "output"
+  log_dir: "logs"
+
+# 缓存配置
+cache:
+  enabled: true
+  memory_max_size: 100      # 内存缓存最大条目数
+  disk_ttl_seconds: 21600    # 磁盘缓存TTL: 6小时
+  compress: true            # 是否压缩缓存
+
+# 数据加载器配置
+loader:
+  chunk_size: 50000         # 分块加载大小
+  n_workers: 4             # 并行工作线程数
+  retry_times: 3           # 重试次数
+  retry_delay: 1.0         # 重试延迟(秒)
+  timeout: 300.0           # 单次加载超时(秒)
+
+# 数据清洗配置
+cleaner:
+  drop_duplicates: true
+  drop_null_threshold: 0.5  # 缺失率超过此比例则删除列
+  fill_null_strategy: "median"  # 填充策略: mean, median, mode, 0
+  outlier_std: 3.0          # 使用多少倍标准差识别异常值
+
+# 数据质量检查配置
+quality:
+  check_missing: true
+  check_duplicates: true
+  check_outliers: true
+  check_dtype: true
+  report_format: "dict"     # 报告格式: dict, dataframe, json
+
+# 启用的数据源
+enabled_sources:
+  - user_features
+  - rec_inter
+  - item_features

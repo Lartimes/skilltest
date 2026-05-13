@@ -1,0 +1,221 @@
+# ============================================================
+# 短视频推荐系统 - 生产配置
+# ============================================================
+# 大厂标准: 配置与代码分离，支持多环境切换
+
+app_name: ShortVideoRecommender
+version: "1.0.0"
+environment: dev  # dev, prod, full
+
+# ============================================================
+# 日志配置
+# ============================================================
+logging:
+  level: INFO  # DEBUG, INFO, WARNING, ERROR
+  format: "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
+  file: logs/app.log  # 日志文件路径 (可选)
+  max_bytes: 10485760  # 10MB
+  backup_count: 5
+
+# ============================================================
+# 数据源配置
+# ============================================================
+data_source:
+  data_dir: pre_pipeline
+  
+  # 主交互数据
+  interactions:
+    file: rec_inter.csv
+    usecols:
+      - user_id
+      - video_id
+      - watch_time
+      - watch_ratio
+      - date
+      - day_of_week
+      - hour
+    dtype:
+      user_id: int32
+      video_id: int32
+      watch_time: float32
+      watch_ratio: float32
+      date: str
+      day_of_week: int8
+      hour: int8
+  
+  # 用户特征
+  user_features:
+    file: user_features.csv
+    usecols:
+      - user_id
+      - gender
+      - city_level
+      - register_days
+      - follow_count
+      - fan_count
+      - friend_count
+      - like_count
+    dtype:
+      user_id: int32
+      gender: int8
+      city_level: int8
+      register_days: int32
+      follow_count: int32
+      fan_count: int32
+      friend_count: int32
+      like_count: int32
+  
+  # 视频特征
+  video_features:
+    file: item_features.csv
+    usecols:
+      - video_id
+      - video_duration
+      - author_id
+      - upload_time
+      - tag_count
+      - like_count
+      - comment_count
+      - share_count
+      - play_count
+      - show_count
+    dtype:
+      video_id: int32
+      video_duration: int32
+      author_id: int32
+      upload_time: int32
+      tag_count: int8
+      like_count: int32
+      comment_count: int32
+      share_count: int32
+      play_count: int32
+      show_count: int32
+
+# ============================================================
+# 采样配置
+# ============================================================
+sampling:
+  # 开发模式
+  dev_mode:
+    type: head
+    n_rows: 50000
+    description: "开发调试用，快速加载"
+  
+  # 生产模式
+  prod_mode:
+    type: user_based
+    n_users: 5000
+    min_interactions: 10
+    description: "生产验证用，结果稳定"
+  
+  # 全量模式
+  full_mode:
+    chunk_size: 500000
+    stream_stats: true
+    description: "全量数据流式处理"
+
+# ============================================================
+# 数据质量检查配置
+# ============================================================
+data_quality:
+  check_null_ratio: true
+  max_null_ratio: 0.5  # 超过50%缺失率的列将被标记
+  check_duplicates: true
+  check_value_range: true
+  check_data_types: true
+  outlier_std_multiplier: 3.0
+
+# ============================================================
+# 数据预处理配置
+# ============================================================
+preprocessing:
+  # 缺失值处理策略
+  null_strategy:
+    user_id: drop
+    video_id: drop
+    watch_ratio: clip  # 裁剪到 [0, 1]
+    watch_time: clip
+    categorical: unknown
+    numeric: median
+  
+  # 异常值处理策略
+  outlier_strategy:
+    watch_ratio:
+      - clip
+      - [0, 1]
+    watch_time:
+      - clip_quantile
+      - [0.01, 0.99]
+    play_count:
+      - log
+      - null
+    like_count:
+      - log
+      - null
+  
+  # 数据过滤规则
+  filter_rules:
+    min_watch_ratio: 0.1
+    min_watch_time: 1.0
+    valid_play_only: true
+
+# ============================================================
+# 特征工程配置
+# ============================================================
+feature:
+  # 用户行为特征
+  user_behavior_features:
+    - total_watch_time
+    - avg_watch_ratio
+    - total_interactions
+    - active_days
+    - preferred_hour
+    - preferred_day_of_week
+  
+  # 视频统计特征
+  video_stats_features:
+    - total_plays
+    - like_rate
+    - comment_rate
+    - share_rate
+    - engagement_score
+  
+  # 归一化配置
+  normalization:
+    method: minmax
+    feature_range: [0, 1]
+
+# ============================================================
+# 推荐算法配置
+# ============================================================
+recommendation:
+  # 协同过滤
+  collaborative_filtering:
+    n_factors: 50
+    n_epochs: 20
+    lr: 0.005
+    reg: 0.02
+  
+  # 内容推荐
+  content_based:
+    use_tfidf: true
+    n_features: 1000
+    min_df: 5
+  
+  # 混合推荐 (LightFM)
+  hybrid:
+    n_components: 256
+    learning_rate: 0.05
+    loss: warp  # warp, bpr, logistic
+    item_alpha: 0.00001
+    user_alpha: 0.00001
+  
+  # 评估配置
+  evaluation:
+    metrics:
+      - precision@10
+      - recall@10
+      - auc
+      - ndcg@10
+    test_ratio: 0.2
+    k_values: [5, 10, 20]
