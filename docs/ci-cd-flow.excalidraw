@@ -1,0 +1,300 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://excalidraw.com",
+  "elements": [
+    {
+      "id": "title",
+      "type": "text",
+      "text": "CI/CD Pipeline 运作流程",
+      "x": 400,
+      "y": 50,
+      "fontSize": 32,
+      "fontFamily": 3,
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "id": "commit_box",
+      "type": "rectangle",
+      "x": 80,
+      "y": 150,
+      "width": 120,
+      "height": 60,
+      "fillColor": "#1971c2",
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "roughness": 0
+    },
+    {
+      "id": "commit_text",
+      "type": "text",
+      "text": "git push",
+      "x": 80,
+      "y": 165,
+      "width": 120,
+      "fontSize": 18,
+      "fontFamily": 3,
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "id": "arrow1",
+      "type": "arrow",
+      "points": [[200, 180], [280, 180]],
+      "strokeColor": "#495057",
+      "strokeWidth": 2
+    },
+    {
+      "id": "lint_box",
+      "type": "rectangle",
+      "x": 290,
+      "y": 140,
+      "width": 140,
+      "height": 80,
+      "fillColor": "#fab005",
+      "strokeColor": "#fab005",
+      "strokeWidth": 2,
+      "roughness": 0
+    },
+    {
+      "id": "lint_text",
+      "type": "text",
+      "text": "代码检查\nESLint + Type",
+      "x": 290,
+      "y": 160,
+      "width": 140,
+      "fontSize": 14,
+      "fontFamily": 3,
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "id": "arrow2",
+      "type": "arrow",
+      "points": [[430, 180], [510, 180]],
+      "strokeColor": "#495057",
+      "strokeWidth": 2
+    },
+    {
+      "id": "test_box",
+      "type": "rectangle",
+      "x": 520,
+      "y": 140,
+      "width": 140,
+      "height": 80,
+      "fillColor": "#20c997",
+      "strokeColor": "#20c997",
+      "strokeWidth": 2,
+      "roughness": 0
+    },
+    {
+      "id": "test_text",
+      "type": "text",
+      "text": "运行测试\nUnit Tests",
+      "x": 520,
+      "y": 160,
+      "width": 140,
+      "fontSize": 14,
+      "fontFamily": 3,
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "id": "arrow3",
+      "type": "arrow",
+      "points": [[660, 180], [740, 180]],
+      "strokeColor": "#495057",
+      "strokeWidth": 2
+    },
+    {
+      "id": "build_box",
+      "type": "rectangle",
+      "x": 750,
+      "y": 140,
+      "width": 140,
+      "height": 80,
+      "fillColor": "#e64980",
+      "strokeColor": "#e64980",
+      "strokeWidth": 2,
+      "roughness": 0
+    },
+    {
+      "id": "build_text",
+      "type": "text",
+      "text": "构建应用\nBuild",
+      "x": 750,
+      "y": 160,
+      "width": 140,
+      "fontSize": 14,
+      "fontFamily": 3,
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "id": "arrow4",
+      "type": "arrow",
+      "points": [[890, 180], [970, 180]],
+      "strokeColor": "#495057",
+      "strokeWidth": 2
+    },
+    {
+      "id": "deploy_box",
+      "type": "rectangle",
+      "x": 980,
+      "y": 140,
+      "width": 140,
+      "height": 80,
+      "fillColor": "#be4bdb",
+      "strokeColor": "#be4bdb",
+      "strokeWidth": 2,
+      "roughness": 0
+    },
+    {
+      "id": "deploy_text",
+      "type": "text",
+      "text": "自动部署\nDeploy",
+      "x": 980,
+      "y": 160,
+      "width": 140,
+      "fontSize": 14,
+      "fontFamily": 3,
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "id": "time_label",
+      "type": "text",
+      "text": "耗时: 3-5 分钟",
+      "x": 140,
+      "y": 220,
+      "fontSize": 12,
+      "fontFamily": 3,
+      "textAlign": "center",
+      "fillColor": "transparent"
+    },
+    {
+      "id": "branch_label",
+      "type": "text",
+      "text": "分支触发规则",
+      "x": 80,
+      "y": 320,
+      "fontSize": 18,
+      "fontFamily": 3,
+      "textAlign": "left",
+      "fillColor": "transparent"
+    },
+    {
+      "id": "master_box",
+      "type": "rectangle",
+      "x": 80,
+      "y": 360,
+      "width": 200,
+      "height": 50,
+      "fillColor": "#51cf66",
+      "strokeColor": "#51cf66",
+      "strokeWidth": 2,
+      "roughness": 0
+    },
+    {
+      "id": "master_text",
+      "type": "text",
+      "text": "master 分支 → 部署生产",
+      "x": 80,
+      "y": 375,
+      "width": 200,
+      "fontSize": 14,
+      "fontFamily": 3,
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "id": "pr_box",
+      "type": "rectangle",
+      "x": 320,
+      "y": 360,
+      "width": 200,
+      "height": 50,
+      "fillColor": "#339af0",
+      "strokeColor": "#339af0",
+      "strokeWidth": 2,
+      "roughness": 0
+    },
+    {
+      "id": "pr_text",
+      "type": "text",
+      "text": "Pull Request → 预览部署",
+      "x": 320,
+      "y": 375,
+      "width": 200,
+      "fontSize": 14,
+      "fontFamily": 3,
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "id": "tag_box",
+      "type": "rectangle",
+      "x": 560,
+      "y": 360,
+      "width": 200,
+      "height": 50,
+      "fillColor": "#f03e3e",
+      "strokeColor": "#f03e3e",
+      "strokeWidth": 2,
+      "roughness": 0
+    },
+    {
+      "id": "tag_text",
+      "type": "text",
+      "text": "git tag v1.0 → Docker发布",
+      "x": 560,
+      "y": 375,
+      "width": 200,
+      "fontSize": 14,
+      "fontFamily": 3,
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "id": "manual_box",
+      "type": "rectangle",
+      "x": 800,
+      "y": 360,
+      "width": 200,
+      "height": 50,
+      "fillColor": "#868e96",
+      "strokeColor": "#868e96",
+      "strokeWidth": 2,
+      "roughness": 0
+    },
+    {
+      "id": "manual_text",
+      "type": "text",
+      "text": "手动触发 → Actions页面",
+      "x": 800,
+      "y": 375,
+      "width": 200,
+      "fontSize": 14,
+      "fontFamily": 3,
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "id": "github_label",
+      "type": "text",
+      "text": "查看运行状态: github.com/lartimes/bishe/actions",
+      "x": 80,
+      "y": 460,
+      "fontSize": 14,
+      "fontFamily": 3,
+      "textAlign": "left",
+      "fillColor": "transparent"
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": 20
+  },
+  "files": {}
+}
