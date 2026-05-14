@@ -47,8 +47,8 @@ output/
 *.pkl
 *.pickle
 
-# GitHub Actions (本地可能需要但通常不上传)
-.github/workflows/
+# GitHub Actions - workflows 应该上传！
+# .github/workflows/
 
 # Test
 .pytest_cache/
